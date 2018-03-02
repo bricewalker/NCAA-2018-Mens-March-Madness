@@ -7,7 +7,6 @@
 [View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
 ## Outline
-
 - [Introduction](#intro)
 - [Feature extraction and engineering](#features)
 - [Classification analysis](#classification)
@@ -15,7 +14,6 @@
 <a id='intro'></a>
 
 ## Introduction
-
 This is a classification project completed for the 2018 March Madness Kaggle Competition. In this project, I have extracted 18 season-based, and 28 tournament-based team-level characteristics from several datasets. I used datasets provided by kaggle as well as data scraped from sports-reference.com. I then engineered several advanced measures and extracted Elo ratings. I used these characteristics to predict probabilities for each matchup in the 2018 March Madness Schedule. My final model was a soft voting classifier that used KNeighbors, Random Forest, Extra Trees, Logistic Regression, Gradient Boosting, and LightGBM classifiers to predict probabilities for each matchup. I also ran XGBoost and Keras/Tensorflow neural network models.
 
 <a id='features'></a>
@@ -49,7 +47,7 @@ And the following team level characteristics for tournament performance:<br>
 - A measure of possession
 - Offensive efficiency
 - Defensive efficiency
-- Net Rating (Offensive - Defensive efficiency
+- Net Rating (Offensive - Defensive efficiency)
 - Assist Ratio
 - Turnover Ratio
 - Shooting Percentage
