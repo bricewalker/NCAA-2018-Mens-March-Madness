@@ -4,9 +4,7 @@
 
 ### By Brice Walker
 
-[View on GitHub](https://github.com/bricewalker/NCAA-2018-Mens-March-Madness)
-
-[View on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
+[View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
 ## Outline
 
