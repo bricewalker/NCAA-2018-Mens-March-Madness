@@ -14,7 +14,7 @@
 <a id='intro'></a>
 
 ## Introduction
-This is a classification project completed for the 2018 March Madness Kaggle Competition. In this project, I have extracted 18 season-based, and 28 tournament-based team-level characteristics from several datasets using data from 1994-2017. I used datasets provided by kaggle, as well as data scraped from sports-reference.com. I then engineered several advanced measures and extracted Elo ratings. I used these characteristics to predict probabilities for each matchup in the 2018 March Madness Schedule. I then created a well calibrated soft voting classifier that used KNeighbors, Random Forest, Extra Trees, Logistic Regression, Gradient Boosting, and LightGBM classifiers to predict probabilities for each matchup. Finally, I developed predictions based on Microsoft's TrueSkill rating system and weighted them with the machine learning model predictions.
+This is a classification project completed for the 2018 March Madness Kaggle Competition. In this project, I have extracted 18 season-based, and 28 tournament-based team-level characteristics from several datasets using data from 1994-2017. I used datasets provided by kaggle, as well as data scraped from sports-reference.com. I then engineered several advanced measures and extracted Elo ratings. I used these characteristics to predict probabilities for each matchup in the 2018 March Madness Schedule. I then created a well calibrated soft voting classifier that used KNeighbors, Random Forest, Extra Trees, Logistic Regression, Gradient Boosting, and LightGBM classifiers as well as a Keras/TensorFlow Neural Network to predict probabilities for each matchup. Finally, I developed predictions based on Microsoft's TrueSkill rating system and weighted them with the machine learning model predictions.
 
 <a id='features'></a>
 
@@ -57,7 +57,7 @@ And the following team level characteristics for tournament performance:<br>
 - Percentage of team defensive rebounds
 - Percentage of team total rebounds
 
-Finally, predictions using these features are weighted and stacked with predictions made through team trueskill ratings and a binary classification neural network trained in Keras/Tensorflow.
+Finally, predictions using these features are weighted and stacked with predictions made through team trueskill ratings.
 
 <a id='classification'></a>
 ## Classification Analysis
