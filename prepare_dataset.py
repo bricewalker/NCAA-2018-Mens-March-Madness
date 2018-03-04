@@ -48,112 +48,114 @@ seeds_pd = pd.read_csv('Data/KaggleData/NCAATourneySeeds.csv')
 elos_ratings_pd = pd.read_csv('Data/Ratings/season_elos.csv')
 enriched_pd = pd.read_csv('Data/KaggleData/NCAATourneyDetailedResultsEnriched.csv')
 
-# Advanced tournament data
-df = pd.read_csv('Data/KaggleData/NCAATourneyDetailedResults.csv')
-# Points Winning/Losing Team
-df['WPts'] = df.apply(lambda row: 2*row.WFGM + row.WFGM3 + row.WFTM, axis=1)
-df['LPts'] = df.apply(lambda row: 2*row.LFGM + row.LFGM3 + row.LFTM, axis=1)
-# Calculate Winning/losing Team Possesion Feature
-wPos = df.apply(lambda row: 0.96*(row.WFGA + row.WTO + 0.44*row.WFTA - row.WOR), axis=1)
-df['WPos'] = df.apply(lambda row: 0.96*(row.WFGA + row.WTO + 0.44*row.WFTA - row.WOR), axis=1)
-lPos = df.apply(lambda row: 0.96*(row.LFGA + row.LTO + 0.44*row.LFTA - row.LOR), axis=1)
-df['LPos'] = lPos = df.apply(lambda row: 0.96*(row.LFGA + row.LTO + 0.44*row.LFTA - row.LOR), axis=1)
-df['Pos'] = (wPos+lPos)/2
-# Offensive efficiency (OffRtg) = 100 x (Points / Possessions)
-df['WOffRtg'] = df.apply(lambda row: 100 * (row.WPts / row.Pos), axis=1)
-df['LOffRtg'] = df.apply(lambda row: 100 * (row.LPts / row.Pos), axis=1)
-# Defensive efficiency (DefRtg) = 100 x (Opponent points / Opponent possessions)
-df['WDefRtg'] = df.LOffRtg
-df['LDefRtg'] = df.WOffRtg
-# Net Rating = Off.Rtg - Def.Rtg
-df['WNetRtg'] = df.apply(lambda row:(row.WOffRtg - row.WDefRtg), axis=1)
-df['LNetRtg'] = df.apply(lambda row:(row.LOffRtg - row.LDefRtg), axis=1)                       
-# Assist Ratio : Percentage of team possessions that end in assists
-df['WAstR'] = df.apply(lambda row: 100 * row.WAst / (row.WFGA + 0.44*row.WFTA + row.WAst + row.WTO), axis=1)
-df['LAstR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)
-# Turnover Ratio: Number of turnovers of a team per 100 possessions used.
-# (TO * 100) / (FGA + (FTA * 0.44) + AST + TO
-df['WTOR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)
-df['LTOR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)                  
-# The Shooting Percentage : Measure of Shooting Efficiency (FGA/FGA3, FTA)
-df['WTSP'] = df.apply(lambda row: 100 * row.WPts / (2 * (row.WFGA + 0.44 * row.WFTA)), axis=1)
-df['LTSP'] = df.apply(lambda row: 100 * row.LPts / (2 * (row.LFGA + 0.44 * row.LFTA)), axis=1)
-# eFG% : Effective Field Goal Percentage adjusting for the fact that 3pt shots are more valuable 
-df['WeFGP'] = df.apply(lambda row:(row.WFGM + 0.5 * row.WFGM3) / row.WFGA, axis=1)      
-df['LeFGP'] = df.apply(lambda row:(row.LFGM + 0.5 * row.LFGM3) / row.LFGA, axis=1)   
-# FTA Rate : How good a team is at drawing fouls.
-df['WFTAR'] = df.apply(lambda row: row.WFTA / row.WFGA, axis=1)
-df['LFTAR'] = df.apply(lambda row: row.LFTA / row.LFGA, axis=1)                       
-# OREB% : Percentage of team offensive rebounds
-df['WORP'] = df.apply(lambda row: row.WOR / (row.WOR + row.LDR), axis=1)
-df['LORP'] = df.apply(lambda row: row.LOR / (row.LOR + row.WDR), axis=1)
-# DREB% : Percentage of team defensive rebounds
-df['WDRP'] = df.apply(lambda row: row.WDR / (row.WDR + row.LOR), axis=1)
-df['LDRP'] = df.apply(lambda row: row.LDR / (row.LDR + row.WOR), axis=1)                                      
-# REB% : Percentage of team total rebounds
-df['WRP'] = df.apply(lambda row: (row.WDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1)
-df['LRP'] = df.apply(lambda row: (row.LDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1) 
-df['WPIE'] = df.apply(lambda row: (row.WDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1)
-wtmp = df.apply(lambda row: row.WPts + row.WFGM + row.WFTM - row.WFGA - row.WFTA + row.WDR + 0.5*row.WOR + row.WAst +row.WStl + 0.5*row.WBlk - row.WPF - row.WTO, axis=1)
-ltmp = df.apply(lambda row: row.LPts + row.LFGM + row.LFTM - row.LFGA - row.LFTA + row.LDR + 0.5*row.LOR + row.LAst +row.LStl + 0.5*row.LBlk - row.LPF - row.LTO, axis=1) 
-df['WPIE'] = wtmp/(wtmp + ltmp)
-df['LPIE'] = ltmp/(wtmp + ltmp)
-    
-df.to_csv('Data/KaggleData/NCAATourneyDetailedResultsEnriched.csv', index=False)
+def createTourneyFeats(): 
+    # Advanced tournament data
+    df = pd.read_csv('Data/KaggleData/NCAATourneyDetailedResults.csv')
+    # Points Winning/Losing Team
+    df['WPts'] = df.apply(lambda row: 2*row.WFGM + row.WFGM3 + row.WFTM, axis=1)
+    df['LPts'] = df.apply(lambda row: 2*row.LFGM + row.LFGM3 + row.LFTM, axis=1)
+    # Calculate Winning/losing Team Possesion Feature
+    wPos = df.apply(lambda row: 0.96*(row.WFGA + row.WTO + 0.44*row.WFTA - row.WOR), axis=1)
+    df['WPos'] = df.apply(lambda row: 0.96*(row.WFGA + row.WTO + 0.44*row.WFTA - row.WOR), axis=1)
+    lPos = df.apply(lambda row: 0.96*(row.LFGA + row.LTO + 0.44*row.LFTA - row.LOR), axis=1)
+    df['LPos'] = lPos = df.apply(lambda row: 0.96*(row.LFGA + row.LTO + 0.44*row.LFTA - row.LOR), axis=1)
+    df['Pos'] = (wPos+lPos)/2
+    # Offensive efficiency (OffRtg) = 100 x (Points / Possessions)
+    df['WOffRtg'] = df.apply(lambda row: 100 * (row.WPts / row.Pos), axis=1)
+    df['LOffRtg'] = df.apply(lambda row: 100 * (row.LPts / row.Pos), axis=1)
+    # Defensive efficiency (DefRtg) = 100 x (Opponent points / Opponent possessions)
+    df['WDefRtg'] = df.LOffRtg
+    df['LDefRtg'] = df.WOffRtg
+    # Net Rating = Off.Rtg - Def.Rtg
+    df['WNetRtg'] = df.apply(lambda row:(row.WOffRtg - row.WDefRtg), axis=1)
+    df['LNetRtg'] = df.apply(lambda row:(row.LOffRtg - row.LDefRtg), axis=1)                       
+    # Assist Ratio : Percentage of team possessions that end in assists
+    df['WAstR'] = df.apply(lambda row: 100 * row.WAst / (row.WFGA + 0.44*row.WFTA + row.WAst + row.WTO), axis=1)
+    df['LAstR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)
+    # Turnover Ratio: Number of turnovers of a team per 100 possessions used.
+    # (TO * 100) / (FGA + (FTA * 0.44) + AST + TO
+    df['WTOR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)
+    df['LTOR'] = df.apply(lambda row: 100 * row.LAst / (row.LFGA + 0.44*row.LFTA + row.LAst + row.LTO), axis=1)                  
+    # The Shooting Percentage : Measure of Shooting Efficiency (FGA/FGA3, FTA)
+    df['WTSP'] = df.apply(lambda row: 100 * row.WPts / (2 * (row.WFGA + 0.44 * row.WFTA)), axis=1)
+    df['LTSP'] = df.apply(lambda row: 100 * row.LPts / (2 * (row.LFGA + 0.44 * row.LFTA)), axis=1)
+    # eFG% : Effective Field Goal Percentage adjusting for the fact that 3pt shots are more valuable 
+    df['WeFGP'] = df.apply(lambda row:(row.WFGM + 0.5 * row.WFGM3) / row.WFGA, axis=1)      
+    df['LeFGP'] = df.apply(lambda row:(row.LFGM + 0.5 * row.LFGM3) / row.LFGA, axis=1)   
+    # FTA Rate : How good a team is at drawing fouls.
+    df['WFTAR'] = df.apply(lambda row: row.WFTA / row.WFGA, axis=1)
+    df['LFTAR'] = df.apply(lambda row: row.LFTA / row.LFGA, axis=1)                       
+    # OREB% : Percentage of team offensive rebounds
+    df['WORP'] = df.apply(lambda row: row.WOR / (row.WOR + row.LDR), axis=1)
+    df['LORP'] = df.apply(lambda row: row.LOR / (row.LOR + row.WDR), axis=1)
+    # DREB% : Percentage of team defensive rebounds
+    df['WDRP'] = df.apply(lambda row: row.WDR / (row.WDR + row.LOR), axis=1)
+    df['LDRP'] = df.apply(lambda row: row.LDR / (row.LDR + row.WOR), axis=1)                                      
+    # REB% : Percentage of team total rebounds
+    df['WRP'] = df.apply(lambda row: (row.WDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1)
+    df['LRP'] = df.apply(lambda row: (row.LDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1) 
+    df['WPIE'] = df.apply(lambda row: (row.WDR + row.WOR) / (row.WDR + row.WOR + row.LDR + row.LOR), axis=1)
+    wtmp = df.apply(lambda row: row.WPts + row.WFGM + row.WFTM - row.WFGA - row.WFTA + row.WDR + 0.5*row.WOR + row.WAst +row.WStl + 0.5*row.WBlk - row.WPF - row.WTO, axis=1)
+    ltmp = df.apply(lambda row: row.LPts + row.LFGM + row.LFTM - row.LFGA - row.LFTA + row.LDR + 0.5*row.LOR + row.LAst +row.LStl + 0.5*row.LBlk - row.LPF - row.LTO, axis=1) 
+    df['WPIE'] = wtmp/(wtmp + ltmp)
+    df['LPIE'] = ltmp/(wtmp + ltmp)
 
-# Creating custom Elo ratings. This takes a long time to run so beware!
-team_ids = set(reg_season_compact_pd.WTeamID).union(set(reg_season_compact_pd.LTeamID))
+    df.to_csv('Data/KaggleData/NCAATourneyDetailedResultsEnriched.csv', index=False)
 
-elo_dict = dict(zip(list(team_ids), [1500] * len(team_ids)))
+def createEloRating():
+    # Creating custom Elo ratings. This takes a long time to run so beware!
+    team_ids = set(reg_season_compact_pd.WTeamID).union(set(reg_season_compact_pd.LTeamID))
 
-reg_season_compact_pd['margin'] = reg_season_compact_pd.WScore - reg_season_compact_pd.LScore
-reg_season_compact_pd['w_elo'] = None
-reg_season_compact_pd['l_elo'] = None
+    elo_dict = dict(zip(list(team_ids), [1500] * len(team_ids)))
 
-def elo_pred(elo1, elo2):
-    return(1. / (10. ** (-(elo1 - elo2) / 400.) + 1.))
+    reg_season_compact_pd['margin'] = reg_season_compact_pd.WScore - reg_season_compact_pd.LScore
+    reg_season_compact_pd['w_elo'] = None
+    reg_season_compact_pd['l_elo'] = None
 
-def expected_margin(elo_diff):
-    return((7.5 + 0.006 * elo_diff))
+    def elo_pred(elo1, elo2):
+        return(1. / (10. ** (-(elo1 - elo2) / 400.) + 1.))
 
-def elo_update(w_elo, l_elo, margin):
-    elo_diff = w_elo - l_elo
-    pred = elo_pred(w_elo, l_elo)
-    mult = ((margin + 3.) ** 0.8) / expected_margin(elo_diff)
-    update = K * mult * (1 - pred)
-    return(pred, update)
+    def expected_margin(elo_diff):
+        return((7.5 + 0.006 * elo_diff))
 
-assert np.all(reg_season_compact_pd.index.values == np.array(range(reg_season_compact_pd.shape[0]))), "Index is out of order."
+    def elo_update(w_elo, l_elo, margin):
+        elo_diff = w_elo - l_elo
+        pred = elo_pred(w_elo, l_elo)
+        mult = ((margin + 3.) ** 0.8) / expected_margin(elo_diff)
+        update = K * mult * (1 - pred)
+        return(pred, update)
 
-preds = []
+    assert np.all(reg_season_compact_pd.index.values == np.array(range(reg_season_compact_pd.shape[0]))), "Index is out of order."
 
-# Loop over all rows
-for i in range(reg_season_compact_pd.shape[0]):
-    
-    # Get key data from each row
-    w = reg_season_compact_pd.at[i, 'WTeamID']
-    l = reg_season_compact_pd.at[i, 'LTeamID']
-    margin = reg_season_compact_pd.at[i, 'margin']
-    wloc = reg_season_compact_pd.at[i, 'WLoc']
-    
-    # Home court advantage?
-    w_ad, l_ad, = 0., 0.
-    if wloc == "H":
-        w_ad += HOME_ADVANTAGE
-    elif wloc == "A":
-        l_ad += HOME_ADVANTAGE
-    
-    # Get elo updates as a result of each game
-    pred, update = elo_update(elo_dict[w] + w_ad,
-                              elo_dict[l] + l_ad, 
-                              margin)
-    elo_dict[w] += update
-    elo_dict[l] -= update
-    preds.append(pred)
+    preds = []
 
-    # Store elos in new dataframe
-    reg_season_compact_pd.loc[i, 'w_elo'] = elo_dict[w]
-    reg_season_compact_pd.loc[i, 'l_elo'] = elo_dict[l]
+    # Loop over all rows
+    for i in range(reg_season_compact_pd.shape[0]):
+
+        # Get key data from each row
+        w = reg_season_compact_pd.at[i, 'WTeamID']
+        l = reg_season_compact_pd.at[i, 'LTeamID']
+        margin = reg_season_compact_pd.at[i, 'margin']
+        wloc = reg_season_compact_pd.at[i, 'WLoc']
+
+        # Home court advantage?
+        w_ad, l_ad, = 0., 0.
+        if wloc == "H":
+            w_ad += HOME_ADVANTAGE
+        elif wloc == "A":
+            l_ad += HOME_ADVANTAGE
+
+        # Get elo updates as a result of each game
+        pred, update = elo_update(elo_dict[w] + w_ad,
+                                  elo_dict[l] + l_ad, 
+                                  margin)
+        elo_dict[w] += update
+        elo_dict[l] -= update
+        preds.append(pred)
+
+        # Store elos in new dataframe
+        reg_season_compact_pd.loc[i, 'w_elo'] = elo_dict[w]
+        reg_season_compact_pd.loc[i, 'l_elo'] = elo_dict[l]
 
 def seed_to_int(seed):
 # Convert seeds to integers
@@ -331,46 +333,47 @@ def createHomeStat(row):
         home = 0
     return home
 
-ts = TrueSkill(draw_probability=0.01) # 0.01 is arbitary small number
-beta = 25 / 6  # default value
+def createTrueskillRating():
+    ts = TrueSkill(draw_probability=0.01) # 0.01 is arbitary small number
+    beta = 25 / 6  # default value
 
-def win_probability(p1, p2):
-    delta_mu = p1.mu - p2.mu
-    sum_sigma = p1.sigma * p1.sigma + p2.sigma * p2.sigma
-    denom = np.sqrt(2 * (beta * beta) + sum_sigma)
-    return ts.cdf(delta_mu / denom)
+    def win_probability(p1, p2):
+        delta_mu = p1.mu - p2.mu
+        sum_sigma = p1.sigma * p1.sigma + p2.sigma * p2.sigma
+        denom = np.sqrt(2 * (beta * beta) + sum_sigma)
+        return ts.cdf(delta_mu / denom)
 
-submit = sample_sub_pd
-submit[['Season', 'Team1', 'Team2']] = submit.apply(lambda r:pd.Series([int(t) for t in r.ID.split('_')]), axis=1)
+    submit = sample_sub_pd
+    submit[['Season', 'Team1', 'Team2']] = submit.apply(lambda r:pd.Series([int(t) for t in r.ID.split('_')]), axis=1)
 
-df_tour = reg_season_compact_pd
-teamIds = np.unique(np.concatenate([df_tour.WTeamID.values, df_tour.LTeamID.values]))
-ratings = { tid:ts.Rating() for tid in teamIds }
+    df_tour = reg_season_compact_pd
+    teamIds = np.unique(np.concatenate([df_tour.WTeamID.values, df_tour.LTeamID.values]))
+    ratings = { tid:ts.Rating() for tid in teamIds }
 
-def feed_season_results(season):
-    print("season = {}".format(season))
-    df1 = df_tour[df_tour.Season == season]
-    for r in df1.itertuples():
-        ratings[r.WTeamID], ratings[r.LTeamID] = rate_1vs1(ratings[r.WTeamID], ratings[r.LTeamID])
+    def feed_season_results(season):
+        print("season = {}".format(season))
+        df1 = df_tour[df_tour.Season == season]
+        for r in df1.itertuples():
+            ratings[r.WTeamID], ratings[r.LTeamID] = rate_1vs1(ratings[r.WTeamID], ratings[r.LTeamID])
 
-def update_pred(season):
-    beta = np.std([r.mu for r in ratings.values()]) 
-    print("beta = {}".format(beta))
-    submit.loc[submit.Season==season, 'Pred'] = submit[submit.Season==season].apply(lambda r:win_probability(ratings[r.Team1], ratings[r.Team2]), axis=1)
+    def update_pred(season):
+        beta = np.std([r.mu for r in ratings.values()]) 
+        print("beta = {}".format(beta))
+        submit.loc[submit.Season==season, 'Pred'] = submit[submit.Season==season].apply(lambda r:win_probability(ratings[r.Team1], ratings[r.Team2]), axis=1)
 
-for season in sorted(df_tour.Season.unique())[:-4]: # exclude last 4 years
-    feed_season_results(season)
+    for season in sorted(df_tour.Season.unique())[:-4]: # exclude last 4 years
+        feed_season_results(season)
 
-update_pred(2014)
-feed_season_results(2014)
-update_pred(2015)
-feed_season_results(2015)
-update_pred(2016)
-feed_season_results(2016)
-update_pred(2017)
+    update_pred(2014)
+    feed_season_results(2014)
+    update_pred(2015)
+    feed_season_results(2015)
+    update_pred(2016)
+    feed_season_results(2016)
+    update_pred(2017)
 
-submit.drop(['Season', 'Team1', 'Team2'], axis=1, inplace=True)
-submit.to_csv('Data/Predictions/trueskill_results.csv', index=None)
+    submit.drop(['Season', 'Team1', 'Team2'], axis=1, inplace=True)
+    submit.to_csv('Data/Predictions/trueskill_results.csv', index=None)
 
 def getSeasonTourneyData(team_id, year):
     year_data_pd = reg_season_compact_pd[reg_season_compact_pd['Season'] == year]
@@ -598,6 +601,9 @@ def createSeasonDict(year):
     return seasonDictionary
 
 def createTrainingSet(years, stage1Years):
+    createTourneyFeats()
+    createEloRating()
+    createTrueskillRating()
     totalNumGames = 0
     for year in years:
         season = reg_season_compact_pd[reg_season_compact_pd['Season'] == year]
@@ -667,8 +673,8 @@ years = range(1994,2018)
 stage1Years = range(2014,2018)
 if os.path.exists("Data/PrecomputedMatrices/X_train.npy") and os.path.exists("Data/PrecomputedMatrices/y_train.npy"):
     print ('There are already precomputed X_train, and y_train matricies.')
-#    os.remove("Data/PrecomputedMatrices/X_train.npy")
-#    os.remove("Data/PrecomputedMatrices/y_train.npy")
-#    createAndSave(years, stage1Years)
+    os.remove("Data/PrecomputedMatrices/X_train.npy")
+    os.remove("Data/PrecomputedMatrices/y_train.npy")
+    createAndSave(years, stage1Years)
 else:
     createAndSave(years, stage1Years)

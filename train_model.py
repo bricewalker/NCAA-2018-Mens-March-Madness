@@ -1,9 +1,72 @@
+# Common imports
+import pandas as pd
+import numpy as np
+import scipy as sp
+import collections
+import os
+import sys
+import math
+from math import pi
+from math import sqrt
+import csv
+import urllib
+import pickle
+import random
+import statsmodels.api as sm
+from patsy import dmatrices
+
+# Math and descriptive stats
+from math import sqrt
+from scipy import stats
+
+# Sci-kit Learn modules for machine learning
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.externals import joblib
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier, AdaBoostClassifier, AdaBoostRegressor
+from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor, VotingClassifier
+from sklearn.ensemble import IsolationForest, RandomForestClassifier, RandomForestRegressor, RandomTreesEmbedding
+from sklearn.svm import SVR, LinearSVC, SVC, LinearSVR
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.decomposition import PCA, KernelPCA
+
+# Boosting libraries
+import lightgbm as lgb
+import xgboost
+
+# Deep Learning modules
+from keras.layers import Input, Dense, Dropout, Flatten, Embedding, merge, Activation
+from keras.layers import Convolution2D, MaxPooling2D, Convolution1D
+from keras.regularizers import l2
+from keras.optimizers import Adam
+from keras.models import Model, Sequential
+from keras.optimizers import SGD
+from keras.utils import np_utils, to_categorical
+from keras.wrappers.scikit_learn import KerasClassifier
+import tensorflow as tf
+
+from trueskill import TrueSkill, Rating, rate_1vs1
+
 Xtrain = np.load("Data/PrecomputedMatrices/X_train.npy")
 ytrain = np.load("Data/PrecomputedMatrices/y_train.npy")
 Xtrain = np.nan_to_num(Xtrain)
 ytrain = np.nan_to_num(ytrain)
 
-X_train, X_test, Y_train, Y_test = train_test_split(Xtrain, ytrain)
+pf = PolynomialFeatures(degree=2, include_bias=True)
+poly = pf.fit_transform(Xtrain)
+
+X_train, X_test, Y_train, Y_test = train_test_split(Xtrain_poly, ytrain)
+
+ss = StandardScaler()
+X_train = ss.fit_transform(X_train)
+X_test = ss.transform(X_test)
 
 log = LogisticRegression(random_state=95)
 log.fit(X_train, Y_train)
@@ -108,6 +171,6 @@ class_results = pd.read_csv('Data/Predictions/class_results.csv')
 trueskill_results = pd.read_csv('Data/Predictions/trueskill_results.csv')
 
 final_predictions = sample_sub_pd
-final_predictions.Pred = (class_results.Pred * 0.6 + trueskill_pd.Pred * 0.4)
+final_predictions.Pred = (class_results.Pred * 0.8 + trueskill_pd.Pred * 0.2)
 
 final_predictions.to_csv('NCAA_Predictions.csv', index=None)
