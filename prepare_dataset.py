@@ -15,16 +15,31 @@ import random
 import statsmodels.api as sm
 from patsy import dmatrices
 
+# Plotting
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+import seaborn as sns
+color = sns.color_palette()
+sns.set_style('darkgrid')
+
 # Math and descriptive stats
 from math import sqrt
 from scipy import stats
-
+from scipy.stats import norm, skew
+from scipy.stats.stats import pearsonr
+from scipy.special import boxcox1p, inv_boxcox1p
 
 # Sci-kit Learn modules for machine learning
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.utils import shuffle
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, log_loss
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, make_scorer
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.externals import joblib
 
 from trueskill import TrueSkill, Rating, rate_1vs1
 
@@ -584,7 +599,20 @@ def getSeasonTourneyData(team_id, year):
             checkConferenceChamp(team_id, year), checkConferenceTourneyChamp(team_id, year), tournamentSeed,
             sos, srs, avgRebounds, avgSteals, getTourneyAppearances(team_id), findNumChampionships(team_id), elo,
             FGM, FGA, FGM3, FGA3, FTM, FTA, OR, DR, Ast, TO, Stl, Blk, PF, Pts, Pos, OffRtg, DefRtg, NetRtg, Score,
-            AstR, TOR, TSP, eFGP, FTAR, ORP, DRP, RP, PIE]
+            AstR, TOR, TSP, eFGP, FTAR, ORP, DRP, RP, PIE, numWins * 2, avgPointsScored * 2, avgPointsAllowed * 2, 
+            Power6Conf(team_id) * 2, avg3sMade * 2, avgAssists * 2, avgTurnovers * 2,
+            checkConferenceChamp(team_id, year) * 2, checkConferenceTourneyChamp(team_id, year) * 2, 
+            tournamentSeed * 2, sos * 2, srs * 2, avgRebounds * 2, avgSteals * 2, getTourneyAppearances(team_id) * 2, 
+            findNumChampionships(team_id) * 2, elo * 2, FGM * 2, FGA * 2, FGM3 * 2, FGA3 * 2, FTM * 2, FTA * 2,
+            OR * 2, DR * 2, Ast * 2, TO * 2, Stl * 2, Blk * 2, PF * 2, Pts * 2, Pos * 2, OffRtg * 2, DefRtg * 2, 
+            NetRtg * 2, Score * 2, AstR * 2, TOR * 2, TSP * 2, eFGP * 2, FTAR * 2, ORP * 2, DRP * 2, RP * 2, 
+            PIE * 2, numWins * 3, avgPointsScored * 3, avgPointsAllowed * 3, Power6Conf(team_id) * 3, 
+            avg3sMade * 3, avgAssists * 3, avgTurnovers * 3, checkConferenceChamp(team_id, year) * 3, 
+            checkConferenceTourneyChamp(team_id, year) * 3, tournamentSeed * 3, sos * 3, srs * 3, avgRebounds * 3,
+            avgSteals * 3, getTourneyAppearances(team_id) * 3, findNumChampionships(team_id) * 3, elo * 3, FGM * 3,
+            FGA * 3, FGM3 * 3, FGA3 * 3, FTM * 3, FTA * 3, OR * 3, DR * 3, Ast * 3, TO * 3, Stl * 3, Blk * 3,
+            PF * 3, Pts * 3, Pos * 3, OffRtg * 3, DefRtg * 3, NetRtg * 3, Score * 3, AstR * 3, TOR * 3, TSP * 3,
+            eFGP * 3, FTAR * 3, ORP * 3, DRP * 3, RP * 3, PIE * 3]
 
 def compareTwoTeams(id_1, id_2, year):
     team_1 = getSeasonTourneyData(id_1, year)
@@ -592,13 +620,13 @@ def compareTwoTeams(id_1, id_2, year):
     diff = [a - b for a, b in zip(team_1, team_2)]
     return diff
 
-def createSeasonDict(year):
-    seasonDictionary = collections.defaultdict(list)
+def createStatDict(year):
+    statDictionary = collections.defaultdict(list)
     for team in teamList:
         team_id = teams_pd[teams_pd['TeamName'] == team].values[0][0]
         team_vector = getSeasonTourneyData(team_id, year)
-        seasonDictionary[team_id] = team_vector
-    return seasonDictionary
+        statDictionary[team_id] = team_vector
+    return statDictionary
 
 def createTrainingSet(years, stage1Years):
     createTourneyFeats()
@@ -615,7 +643,7 @@ def createTrainingSet(years, stage1Years):
     y_train = np.zeros(( totalNumGames ))
     indexCounter = 0
     for year in years:
-        team_vectors = createSeasonDict(year)
+        team_vectors = createStatDict(year)
         season = reg_season_compact_pd[reg_season_compact_pd['Season'] == year]
         numGamesInSeason = len(season.index)
         tourney = tourney_compact_pd[tourney_compact_pd['Season'] == year]

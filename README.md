@@ -7,9 +7,25 @@
 [View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
 ## Outline
+- [Getting Started](#start)
 - [Introduction](#intro)
 - [Feature extraction and engineering](#features)
 - [Classification analysis](#classification)
+
+<a id='start'></a>
+
+## Getting Started
+I have provided a few handy scripts to allow quickly running this on your own. This project was built/tested on python 3.6 and it is recommended to use 3.6+. It is also recommended that you use Anaconda. This project requires Jupyter Notebook.
+
+Simply run the following codes from a terminal in the repo directory:
+
+```
+pip install requirements.txt
+python process_data.py
+python train_model.py
+```
+> Note: You may need to [install XGBoost from source](https://github.com/dmlc/xgboost).
+> Note: You may also need to uninstall tensorflow and run ```pip install tensorflow-gpu``` in order to take advantage of TensorFlow's GPU acceleration.
 
 <a id='intro'></a>
 

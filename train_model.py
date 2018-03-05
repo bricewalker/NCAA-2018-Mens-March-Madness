@@ -1,3 +1,5 @@
+import prepare_dataset
+
 # Common imports
 import pandas as pd
 import numpy as np
@@ -59,10 +61,7 @@ ytrain = np.load("Data/PrecomputedMatrices/y_train.npy")
 Xtrain = np.nan_to_num(Xtrain)
 ytrain = np.nan_to_num(ytrain)
 
-pf = PolynomialFeatures(degree=2, include_bias=True)
-poly = pf.fit_transform(Xtrain)
-
-X_train, X_test, Y_train, Y_test = train_test_split(Xtrain_poly, ytrain)
+X_train, X_test, Y_train, Y_test = train_test_split(Xtrain, ytrain)
 
 ss = StandardScaler()
 X_train = ss.fit_transform(X_train)
