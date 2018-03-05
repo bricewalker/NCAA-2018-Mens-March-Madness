@@ -1,13 +1,11 @@
-# NCAA 2018 Mens March Madness
-
-## 2018 NCAA March Madness Men's Basketball Predictions
+# 2018 NCAA March Madness Men's Basketball Predictions
 
 ### By Brice Walker
 
 [View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
 ## Outline
-- [Getting Started](#start)
+- [Getting started](#start)
 - [Introduction](#intro)
 - [Feature extraction and engineering](#features)
 - [Classification analysis](#classification)
@@ -24,7 +22,8 @@ pip install requirements.txt
 python process_data.py
 python train_model.py
 ```
-> Note: You may need to [install XGBoost from source](https://github.com/dmlc/xgboost).<br>
+> Note: You may need to [install XGBoost from source](https://github.com/dmlc/xgboost).
+<br><br>
 > You may also need to run ```pip uninstall tensorflow``` to uninstall tensorflow and then run ```pip install tensorflow-gpu``` in order to take advantage of TensorFlow's GPU acceleration.
 
 I have also provided a jupyter notebook that walks you through the iterative process.
@@ -90,3 +89,12 @@ Predictive binary classification statistical models explored in this project inc
 - TensorFlow/Keras Neural Networks
 - Principal Component Analysis
 - Ensembling/Stacking and Weighting Models
+
+### Libraries
+Machine learning libraries used in this project include:
+
+- Sci-Kit Learn
+- XGBoost
+- Light GBM
+- Keras
+- TensorFlow
