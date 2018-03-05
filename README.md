@@ -24,8 +24,10 @@ pip install requirements.txt
 python process_data.py
 python train_model.py
 ```
-> Note: You may need to [install XGBoost from source](https://github.com/dmlc/xgboost).
-> Note: You may also need to uninstall tensorflow and run ```pip install tensorflow-gpu``` in order to take advantage of TensorFlow's GPU acceleration.
+> Note: You may need to [install XGBoost from source](https://github.com/dmlc/xgboost).<br>
+> You may also need to run ```pip uninstall tensorflow``` to uninstall tensorflow and then run ```pip install tensorflow-gpu``` in order to take advantage of TensorFlow's GPU acceleration.
+
+I have also provided a jupyter notebook that walks you through the iterative process.
 
 <a id='intro'></a>
 
