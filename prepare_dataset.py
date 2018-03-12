@@ -40,6 +40,32 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, m
 from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.externals import joblib
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier, AdaBoostClassifier, AdaBoostRegressor
+from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor, VotingClassifier
+from sklearn.ensemble import IsolationForest, RandomForestClassifier, RandomForestRegressor, RandomTreesEmbedding
+from sklearn.svm import SVR, LinearSVC, SVC, LinearSVR
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.decomposition import PCA, KernelPCA
+
+# Boosting libraries
+import lightgbm as lgb
+import xgboost
+
+# Deep Learning modules
+from keras.layers import Input, Dense, Dropout, Flatten, Embedding, merge, Activation
+from keras.layers import Convolution2D, MaxPooling2D, Convolution1D
+from keras.regularizers import l2
+from keras.optimizers import Adam
+from keras.models import Model, Sequential
+from keras.optimizers import SGD
+from keras.utils import np_utils, to_categorical
+from keras.wrappers.scikit_learn import KerasClassifier
+import tensorflow as tf
 
 from trueskill import TrueSkill, Rating, rate_1vs1
 
@@ -62,6 +88,26 @@ seeds_pd = pd.read_csv('Data/KaggleData/NCAATourneySeeds.csv')
 # Data I created
 elos_ratings_pd = pd.read_csv('Data/Ratings/season_elos.csv')
 enriched_pd = pd.read_csv('Data/KaggleData/NCAATourneyDetailedResultsEnriched.csv')
+
+# Prelim stage 2 data
+#tourney_seeds_pd = pd.read_csv('Data/KaggleData/NCAATourneySeeds_SampleTourney2018.csv')
+#seasons_pd = pd.read_csv('Data/KaggleData/Seasons_SampleTourney2018.csv')
+#slots_pd = pd.read_csv('Data/KaggleData/NCAATourneySlots_SampleTourney2018.csv')
+#sample_sub_pd = pd.read_csv('Data/KaggleData/SampleSubmissionStage2_SampleTourney2018.csv')
+#reg_season_compact_pd = pd.read_csv('Data/KaggleData/RegularSeasonCompactResults_Prelim2018.csv')
+#reg_season_detailed_pd = pd.read_csv('Data/KaggleData/RegularSeasonDetailedResults_Prelim2018.csv')
+
+# Final stage 2 data
+reg_season_compact_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/RegularSeasonCompactResults.csv')
+seasons_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/Seasons.csv')
+teams_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/Teams.csv')
+slots_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/NCAATourneySlots.csv')
+seeds_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/NCAATourneySeeds.csv')
+reg_season_detailed_pd = pd.read_csv('Data/KaggleData/RegularSeasonDetailedResults.csv')
+tourney_seeds_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/NCAATourneySeeds.csv')
+sample_sub_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/SampleSubmissionStage2.csv')
+# Data I created
+enriched_pd = pd.read_csv('Data/Stage2UpdatedDataFiles/NCAATourneyDetailedResultsEnriched2018.csv')
 
 def createTourneyFeats(): 
     # Advanced tournament data
@@ -115,7 +161,7 @@ def createTourneyFeats():
     df['WPIE'] = wtmp/(wtmp + ltmp)
     df['LPIE'] = ltmp/(wtmp + ltmp)
 
-    df.to_csv('Data/KaggleData/NCAATourneyDetailedResultsEnriched.csv', index=False)
+    df.to_csv('Data/Stage2UpdatedDataFiles/NCAATourneyDetailedResultsEnriched2018.csv', index=False)
 
 def createEloRating():
     # Creating custom Elo ratings. This takes a long time to run so beware!
@@ -376,19 +422,21 @@ def createTrueskillRating():
         print("beta = {}".format(beta))
         submit.loc[submit.Season==season, 'Pred'] = submit[submit.Season==season].apply(lambda r:win_probability(ratings[r.Team1], ratings[r.Team2]), axis=1)
 
-    for season in sorted(df_tour.Season.unique())[:-4]: # exclude last 4 years
+    for season in sorted(df_tour.Season.unique()[:-1]): # exclude last 4 years [:-4]/ last 1 year [:-1]
         feed_season_results(season)
 
-    update_pred(2014)
-    feed_season_results(2014)
-    update_pred(2015)
-    feed_season_results(2015)
-    update_pred(2016)
-    feed_season_results(2016)
-    update_pred(2017)
+#    update_pred(2014)
+#    feed_season_results(2014)
+#    update_pred(2015)
+#    feed_season_results(2015)
+#    update_pred(2016)
+#    feed_season_results(2016)
+#    update_pred(2017)
+    feed_season_results(2017)
+    update_pred(2018)
 
     submit.drop(['Season', 'Team1', 'Team2'], axis=1, inplace=True)
-    submit.to_csv('Data/Predictions/trueskill_results.csv', index=None)
+    submit.to_csv('Data/Predictions/trueskill_results2018.csv', index=None)
 
 def getSeasonTourneyData(team_id, year):
     year_data_pd = reg_season_compact_pd[reg_season_compact_pd['Season'] == year]
@@ -628,7 +676,7 @@ def createStatDict(year):
         statDictionary[team_id] = team_vector
     return statDictionary
 
-def createTrainingSet(years, stage1Years):
+def createTrainingSet(years, stage1Years, Stage2Year):
     createTourneyFeats()
     createEloRating()
     createTrueskillRating()
@@ -689,20 +737,23 @@ def createTrainingSet(years, stage1Years):
         print ('Finished year:', year)
         if (year in stage1Years):
             np.save('Data/PrecomputedMatrices/TeamVectors/' + str(year) + 'TeamVectors', team_vectors)
+        if (year == stage2Year):
+            np.save('Data/PrecomputedMatrices/Stage2/' + str(year) + 'TeamVectors', team_vectors)
     return X_train, y_train
 
-def createAndSave(years, stage1Years):
-    X_train, y_train = createTrainingSet(years, stage1Years)
+def createAndSave(years, stage1Years, stage2Year):
+    X_train, y_train = createTrainingSet(years, stage1Years, stage2Year)
     np.save('Data/PrecomputedMatrices/X_train', X_train)
     np.save('Data/PrecomputedMatrices/y_train', y_train)
 
-years = range(1994,2018)
+years = range(1994,2019)
 # Saves the team vectors for the following years
 stage1Years = range(2014,2018)
+stage2Year = 2018
 if os.path.exists("Data/PrecomputedMatrices/X_train.npy") and os.path.exists("Data/PrecomputedMatrices/y_train.npy"):
     print ('There are already precomputed X_train, and y_train matricies.')
     os.remove("Data/PrecomputedMatrices/X_train.npy")
     os.remove("Data/PrecomputedMatrices/y_train.npy")
-    createAndSave(years, stage1Years)
+    createAndSave(years, stage1Years, stage2Year)
 else:
-    createAndSave(years, stage1Years)
+    createAndSave(years, stage1Years, stage2Year)

@@ -124,83 +124,89 @@ model_soft = VotingClassifier(estimators=[('gbc', gbc), ('rfr', rfr), ('etrees',
 model_soft.fit(X_train, Y_train)
 nn_model.fit(X_train_scaled, Y_train)
 
-def classPredictGame(team_1_vector, team_2_vector, home): 
+def classPredictGame(team_1_vector, team_2_vector, home):
     diff = [a - b for a, b in zip(team_1_vector, team_2_vector)]
     diff.append(home)
+    diff = np.nan_to_num(diff)
+    
     return model_soft.predict_proba(np.array([diff]))[0][1]
     #return calibrated_model.predict([diff])[0][1] # Depends on model(s) chosen
 
-def loadTeamVectors(years): 
+def loadTeamVectors(years):
     listDictionaries = []
     for year in years:
-        curVectors = np.load("Data/PrecomputedMatrices/TeamVectors/" + str(year) + "TeamVectors.npy").item()
+        curVectors = np.load("Data/PrecomputedMatrices/Stage2/" + str(year) + "TeamVectors.npy").item()
         listDictionaries.append(curVectors)
     return listDictionaries
 
 def classCreatePrediction():
-    if os.path.exists("Data/Predictions/class_results.csv"):
-        os.remove("Data/Predictions/class_results.csv")
-    years = range(2014,2018)
-    listDictionaries = loadTeamVectors(years)
-    print ("Loaded the team vectors.")
-    results = [[0 for x in range(2)] for x in range(len(sample_sub_pd.index))]
-    for index, row in sample_sub_pd.iterrows():
-        matchupId = row['ID']
-        year = int(matchupId[0:4]) 
-        teamVectors = listDictionaries[year - years[0]]
-        team1Id = int(matchupId[5:9])
-        team2Id = int(matchupId[10:14])
-        team1Vector = teamVectors[team1Id] 
-        team2Vector = teamVectors[team2Id]
-        pred = classPredictGame(team1Vector, team2Vector, 0)
-        results[index][0] = matchupId
-        results[index][1] = pred
-    results = pd.np.array(results)
-    firstRow = [[0 for x in range(2)] for x in range(1)]
-    firstRow[0][0] = 'ID'
-    firstRow[0][1] = 'Pred'
-    with open("Data/Predictions/class_results.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerows(firstRow)
-        writer.writerows(results)
-        print("Saved Results.")
+#    if os.path.exists("Data/Predictions/class_results.csv"):
+#        print ('There are already precomputed predictions.')
+#    else:    
+        years = range(2018,2019)
+        listDictionaries = loadTeamVectors(years)
+        print ("Loaded the team vectors.")
+        results = [[0 for x in range(2)] for x in range(len(sample_sub_pd.index))]
+        for index, row in sample_sub_pd.iterrows():
+            matchupId = row['ID']
+            year = int(matchupId[0:4]) 
+            teamVectors = listDictionaries[year - years[0]]
+            team1Id = int(matchupId[5:9])
+            team2Id = int(matchupId[10:14])
+            team1Vector = teamVectors[team1Id] 
+            team2Vector = teamVectors[team2Id]
+            pred = classPredictGame(team1Vector, team2Vector, 0)
+            results[index][0] = matchupId
+            results[index][1] = pred
+        results = pd.np.array(results)
+        firstRow = [[0 for x in range(2)] for x in range(1)]
+        firstRow[0][0] = 'ID'
+        firstRow[0][1] = 'Pred'
+        with open("Data/Predictions/class_results.csv", "w") as f:
+            writer = csv.writer(f)
+            writer.writerows(firstRow)
+            writer.writerows(results)
+            print("Saved Results.")
 
 classCreatePrediction()
 
 def nnPredictGame(team_1_vector, team_2_vector, home):
     diff = [a - b for a, b in zip(team_1_vector, team_2_vector)]
     diff.append(home)
+    diff = np.nan_to_num(diff)
+    
     return nn_model.predict_proba(np.array([diff]))[0][1]
     #return calibrated_model.predict([diff])[0][1] # Depends on model(s) chosen
 
 def nnCreatePrediction():
-    if os.path.exists("Data/Predictions/nn_results.csv"):
-        os.remove("Data/Predictions/nn_results.csv")
-    years = range(2014,2018)
-    listDictionaries = loadTeamVectors(years)
-    print ("Loaded the team vectors.")
-    results = [[0 for x in range(2)] for x in range(len(sample_sub_pd.index))]
-    for index, row in sample_sub_pd.iterrows():
-        matchupId = row['ID']
-        year = int(matchupId[0:4]) 
-        teamVectors = listDictionaries[year - years[0]]
-        team1Id = int(matchupId[5:9])
-        team2Id = int(matchupId[10:14])
-        team1Vector = teamVectors[team1Id] 
-        team2Vector = teamVectors[team2Id]
-        pred = nnPredictGame(team1Vector, team2Vector, 0)
-        results[index][0] = matchupId
-        results[index][1] = pred
-    results = pd.np.array(results)
-    firstRow = [[0 for x in range(2)] for x in range(1)]
-    firstRow[0][0] = 'ID'
-    firstRow[0][1] = 'Pred'
-    with open("Data/Predictions/nn_results.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerows(firstRow)
-        writer.writerows(results)
-        print("Saved Results.")
-
+#    if os.path.exists("Data/Predictions/nn_results.csv"):
+#        print ('There are already precomputed predictions.')
+#    else:    
+        years = range(2018,2019)
+        listDictionaries = loadTeamVectors(years)
+        print ("Loaded the team vectors.")
+        results = [[0 for x in range(2)] for x in range(len(sample_sub_pd.index))]
+        for index, row in sample_sub_pd.iterrows():
+            matchupId = row['ID']
+            year = int(matchupId[0:4]) 
+            teamVectors = listDictionaries[year - years[0]]
+            team1Id = int(matchupId[5:9])
+            team2Id = int(matchupId[10:14])
+            team1Vector = teamVectors[team1Id] 
+            team2Vector = teamVectors[team2Id]
+            pred = nnPredictGame(team1Vector, team2Vector, 0)
+            results[index][0] = matchupId
+            results[index][1] = pred
+        results = pd.np.array(results)
+        firstRow = [[0 for x in range(2)] for x in range(1)]
+        firstRow[0][0] = 'ID'
+        firstRow[0][1] = 'Pred'
+        with open("Data/Predictions/nn_results.csv", "w") as f:
+            writer = csv.writer(f)
+            writer.writerows(firstRow)
+            writer.writerows(results)
+            print("Saved Results.")
+        
 nnCreatePrediction()
 
 class_results = pd.read_csv('Data/Predictions/class_results.csv')
