@@ -4,6 +4,8 @@
 
 [View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
+![gonzaga](gonzaga.png)
+
 ### The Bracket
 
 ![bracket](output.png)
