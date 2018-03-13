@@ -4,7 +4,7 @@
 
 [View full project on nbviewer](http://nbviewer.jupyter.org/github/bricewalker/NCAA-2018-Mens-March-Madness/blob/master/Madness.ipynb)
 
-### The Bracket
+### The Bracket (Go Bulldogs!)
 
 ![bracket](output.png)
 
