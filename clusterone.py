@@ -81,7 +81,7 @@ rfc = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini'
                              oob_score=False, random_state=None, verbose=0,
                              warm_start=False)
 
-etrees = ExtraTreesClassifier(bootstrap=False, class_weight=None, criterion='gini'
+etrees = ExtraTreesClassifier(bootstrap=False, class_weight=None, criterion='gini',
                               max_depth=40, max_features='log2', max_leaf_nodes=200,
                               min_impurity_decrease=0, min_impurity_split=None,
                               min_samples_leaf=4, min_samples_split=500,
