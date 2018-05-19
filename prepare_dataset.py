@@ -15,13 +15,6 @@ import random
 import statsmodels.api as sm
 from patsy import dmatrices
 
-# Plotting
-import matplotlib.pyplot as plt
-
-import seaborn as sns
-color = sns.color_palette()
-sns.set_style('darkgrid')
-
 # Math and descriptive stats
 from math import sqrt
 from scipy import stats
