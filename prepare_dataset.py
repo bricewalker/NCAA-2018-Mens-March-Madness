@@ -17,7 +17,6 @@ from patsy import dmatrices
 
 # Plotting
 import matplotlib.pyplot as plt
-%matplotlib inline
 
 import seaborn as sns
 color = sns.color_palette()
