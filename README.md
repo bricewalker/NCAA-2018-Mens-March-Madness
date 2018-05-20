@@ -32,6 +32,10 @@ python train_model.py
 
 I have also provided a jupyter notebook that walks you through the iterative process.
 
+> Note: This project has been optimized for deployment on [Clusterone](https://clusterone.com/). 
+<br>
+To run this project on Clusterone, use clusterone.py
+
 <a id='intro'></a>
 
 ## Introduction
